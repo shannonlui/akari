@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -28,6 +29,7 @@ public class PlayScreen implements Screen {
     private OrthographicCamera cam;
     private Viewport vp;
     private ObjectMap<Vector2, GridCell> cellMap = new ObjectMap();
+    private BitmapFont font;
 
     // Grid dimensions
     private int gridWidth = 7;
@@ -53,6 +55,7 @@ public class PlayScreen implements Screen {
         bulbSprite = new Sprite(lightBulb);
         bulbSprite.setColor(Color.DARK_GRAY);
 
+        font = new BitmapFont();
         createGrid();
     }
 
@@ -96,14 +99,15 @@ public class PlayScreen implements Screen {
             GridCell cell;
             while (itr.hasNext()) {
                 cell = itr.next();
-                if (!cell.isBlack() && cell.getBoundingRectangle().contains(touchPos.x, touchPos.y)) {
+                if (cell.getState() != GridCell.State.BLACK
+                        && cell.getBoundingRectangle().contains(touchPos.x, touchPos.y)) {
                     System.out.println("Touched " + cell.getCoords());
-                    if (cell.hasBulb()) {
+                    if (cell.getState() == GridCell.State.LIGHTBULB) {
                         cell.removeBulb();
-                        updateNeighbours(cell.getCoords(), false);
+                        updateNeighbours(cell, false);
                     } else {
                         cell.addBulb();
-                        updateNeighbours(cell.getCoords(), true);
+                        updateNeighbours(cell, true);
                     }
 
                 }
@@ -112,23 +116,32 @@ public class PlayScreen implements Screen {
     }
 
     // Light up the cells in the same column or row as the given vector
-    public void updateNeighbours(Vector2 coords, boolean lightUp) {
-        updateRow(coords, -1, lightUp);
-        updateRow(coords, 1, lightUp);
-        updateColumn(coords, -1, lightUp);
-        updateColumn(coords, 1, lightUp);
+    public void updateNeighbours(GridCell cell, boolean lightUp) {
+        updateRow(cell, -1, lightUp);
+        updateRow(cell, 1, lightUp);
+        updateColumn(cell, -1, lightUp);
+        updateColumn(cell, 1, lightUp);
     }
 
     // Light up cells in this row up until a black cell or the end of the grid
-    public void updateRow(Vector2 coords, int value, boolean lightUp) {
-        float currX = coords.x + value;
-        float y = coords.y;
+    public void updateRow(GridCell cell, int value, boolean lightUp) {
+        float currX = cell.getCoords().x + value;
+        float y = cell.getCoords().y;
         GridCell curr = cellMap.get(new Vector2(currX, y));
-        while (curr != null && !curr.isBlack()) {
+        while (curr != null && curr.getState() != GridCell.State.BLACK) {
             if (lightUp) {
-                curr.lightUp();
+                curr.incrCount();
+                if (curr.getState() == GridCell.State.LIGHTBULB) {
+                    System.out.println("yes also lightbulb");
+                    curr.incrConflict();
+                    cell.incrConflict();
+                }
             } else {
                 curr.decrCount();
+                if (curr.getState() == GridCell.State.LIGHTBULB) {
+                    curr.decrConflict();
+                    cell.decrConflict();
+                }
             }
             currX = currX + value;
             curr = cellMap.get(new Vector2(currX, y));
@@ -136,15 +149,23 @@ public class PlayScreen implements Screen {
     }
 
     // Light up cells in this column up until a black cell or the end of the grid
-    public void updateColumn(Vector2 coords, int value, boolean lightUp) {
-        float currY = coords.y + value;
-        float x = coords.x;
+    public void updateColumn(GridCell cell, int value, boolean lightUp) {
+        float currY = cell.getCoords().y + value;
+        float x = cell.getCoords().x;
         GridCell curr = cellMap.get(new Vector2(x, currY));
-        while (curr != null && !curr.isBlack()) {
+        while (curr != null && curr.getState() != GridCell.State.BLACK) {
             if (lightUp) {
-                curr.lightUp();
+                curr.incrCount();
+                if (curr.getState() == GridCell.State.LIGHTBULB) {
+                    curr.incrConflict();
+                    cell.incrConflict();
+                }
             } else {
                 curr.decrCount();
+                if (curr.getState() == GridCell.State.LIGHTBULB) {
+                    curr.decrConflict();
+                    cell.decrConflict();
+                }
             }
             currY = currY + value;
             curr = cellMap.get(new Vector2(x, currY));
@@ -168,9 +189,13 @@ public class PlayScreen implements Screen {
             cell = itr.next();
             cell.draw(game.batch);
             // Draw light bulb on top of cell if cell has bulb
-            if (cell.hasBulb()) {
-                bulbSprite.setCenter(cell.getX() + cell.getWidth()/2, cell.getY() + cell.getHeight()/2);
-                bulbSprite.draw(game.batch);
+            switch (cell.getState()) {
+                case LIGHTBULB:
+                    bulbSprite.setCenter(cell.getX() + cell.getWidth()/2, cell.getY() + cell.getHeight()/2);
+                    bulbSprite.draw(game.batch);
+                    break;
+               /* case BLACK:
+                    font.draw(game.batch, "4", cell.getX(), cell.getY());*/
             }
         }
         game.batch.end();
