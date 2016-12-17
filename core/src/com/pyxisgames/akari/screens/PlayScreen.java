@@ -7,7 +7,9 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -55,8 +57,13 @@ public class PlayScreen implements Screen {
         bulbSprite = new Sprite(lightBulb);
         bulbSprite.setColor(Color.DARK_GRAY);
 
-        font = new BitmapFont();
         createGrid();
+
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("./fonts/vanilla-extract.regular.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 18;
+        font = generator.generateFont(parameter); // font size 12 pixels
+        generator.dispose();
     }
 
     public void createGrid() {
@@ -74,7 +81,7 @@ public class PlayScreen implements Screen {
             for (int j = 0; j < gridHeight; j++) {
                 GridCell cell = new GridCell(cellTexture, i, j);
                 if ((i == 2 && j == 4) || (i==4 && j ==1)) {
-                    cell.tintBlack();
+                    cell.tintBlack(3);
                 }
                 cell.setSize(cellLength, cellLength);
                 cell.setPosition(x, y);
@@ -132,7 +139,6 @@ public class PlayScreen implements Screen {
             if (lightUp) {
                 curr.incrCount();
                 if (curr.getState() == GridCell.State.LIGHTBULB) {
-                    System.out.println("yes also lightbulb");
                     curr.incrConflict();
                     cell.incrConflict();
                 }
@@ -182,6 +188,8 @@ public class PlayScreen implements Screen {
 
         game.batch.begin();
 
+        GlyphLayout layout = new GlyphLayout();
+
         // Draw the grid
         Iterator<GridCell> itr = cellMap.values();
         GridCell cell;
@@ -194,8 +202,15 @@ public class PlayScreen implements Screen {
                     bulbSprite.setCenter(cell.getX() + cell.getWidth()/2, cell.getY() + cell.getHeight()/2);
                     bulbSprite.draw(game.batch);
                     break;
-               /* case BLACK:
-                    font.draw(game.batch, "4", cell.getX(), cell.getY());*/
+                case BLACK:
+                    if (cell.getBlackNumber() > 0) {
+                        String num = Integer.toString(cell.getBlackNumber());
+                        layout.setText(font, num);
+                        float fontX = cell.getX() + (cell.getWidth() - layout.width) / 2;
+                        float fontY = cell.getY() + (cell.getHeight() + layout.height) / 2;
+                        font.draw(game.batch, num, fontX, fontY);
+                    }
+                    break;
             }
         }
         game.batch.end();

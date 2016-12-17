@@ -6,9 +6,6 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 
 /**
- * if black: count = number on the cell
- * else: count = number of light bulbs lighting this cell
- * black, bulb, conflict, empty
  * Created by shannonlui on 2016-12-13.
  */
 
@@ -19,9 +16,10 @@ public class GridCell extends Sprite {
     }
 
     private Vector2 coords;
-    private int count = 0;
     private State state;
+    private int lightCount = 0;
     private int conflictCount = 0;
+    private int blackNumber = 0;
 
     public GridCell(Texture texture, int x, int y) {
         super(texture);
@@ -41,9 +39,10 @@ public class GridCell extends Sprite {
         return this.state;
     }
 
-    public void tintBlack() {
+    public void tintBlack(int num) {
         setState(State.BLACK);
         setColor(Color.DARK_GRAY);
+        blackNumber = num;
     }
 
     public void addBulb() {
@@ -57,15 +56,15 @@ public class GridCell extends Sprite {
     }
 
     public void incrCount() {
-        count++;
-        if (count == 1) {
+        lightCount++;
+        if (lightCount == 1) {
             setColor(Color.valueOf("#f4e648"));
         }
     }
 
     public void decrCount() {
-        count--;
-        if (count == 0) {
+        lightCount--;
+        if (lightCount == 0) {
             setColor(Color.WHITE);
         }
     }
@@ -82,5 +81,9 @@ public class GridCell extends Sprite {
         if (conflictCount == 0) {
             setColor(Color.valueOf("#f4e648"));
         }
+    }
+
+    public int getBlackNumber() {
+        return blackNumber;
     }
 }
