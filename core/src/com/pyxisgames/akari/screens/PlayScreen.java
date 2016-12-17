@@ -32,16 +32,13 @@ public class PlayScreen implements Screen {
     private Viewport vp;
     private ObjectMap<Vector2, GridCell> cellMap = new ObjectMap();
     private BitmapFont font;
-
-    // Grid dimensions
-    private int gridWidth = 7;
-    private int gridHeight = 7;
-    private float borderWidth = 5;
+    private Grid grid;
 
     // Textures and Sprites
     private Texture cellTexture;
     private Texture lightBulb;
     private Sprite bulbSprite;
+
 
     public PlayScreen(Akari game) {
         this.game = game;
@@ -57,8 +54,11 @@ public class PlayScreen implements Screen {
         bulbSprite = new Sprite(lightBulb);
         bulbSprite.setColor(Color.DARK_GRAY);
 
-        createGrid();
+       // createGrid();
+        grid = new Grid(7, 7);
+        setBulbSize(grid.getCellLength());
 
+        // Generate font for cells
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("./fonts/vanilla-extract.regular.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 18;
@@ -66,115 +66,15 @@ public class PlayScreen implements Screen {
         generator.dispose();
     }
 
-    public void createGrid() {
-        float cellLength = (Akari.GAME_WIDTH - ((gridWidth + 1) * borderWidth))/gridWidth;
-        float yStartPos = (Akari.GAME_HEIGHT - ((gridHeight - 1) * borderWidth) - cellLength * gridHeight) / 2;
-        float x = borderWidth;
-        float y = yStartPos;
-
-        // Adjust the size of the light bulb sprite
-        float bulbHeight = cellLength * 3/4;
-        bulbSprite.setSize(bulbHeight/bulbSprite.getHeight() * bulbSprite.getWidth(), bulbHeight);
-
-        // Add cells to the cellMap
-        for (int i = 0; i < gridWidth; i++) {
-            for (int j = 0; j < gridHeight; j++) {
-                GridCell cell = new GridCell(cellTexture, i, j);
-                if ((i == 2 && j == 4) || (i==4 && j ==1)) {
-                    cell.tintBlack(3);
-                }
-                cell.setSize(cellLength, cellLength);
-                cell.setPosition(x, y);
-
-                cellMap.put(new Vector2(i, j), cell);
-                y += borderWidth + cellLength;
-            }
-            x += borderWidth + cellLength;
-            y = yStartPos;
-        }
-    }
-
     public void update(float delta) {
         // If touch detected, get touch position
         if (Gdx.input.justTouched()) {
             Vector3 touchPos = new Vector3();
             touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
-            cam.unproject(touchPos);
+            vp.unproject(touchPos);
 
-            // Iterate through the grid to check if a cell has been touched.
-            Iterator<GridCell> itr = cellMap.values();
-            GridCell cell;
-            while (itr.hasNext()) {
-                cell = itr.next();
-                if (cell.getState() != GridCell.State.BLACK
-                        && cell.getBoundingRectangle().contains(touchPos.x, touchPos.y)) {
-                    System.out.println("Touched " + cell.getCoords());
-                    if (cell.getState() == GridCell.State.LIGHTBULB) {
-                        cell.removeBulb();
-                        updateNeighbours(cell, false);
-                    } else {
-                        cell.addBulb();
-                        updateNeighbours(cell, true);
-                    }
+            grid.update(touchPos);
 
-                }
-            }
-        }
-    }
-
-    // Light up the cells in the same column or row as the given vector
-    public void updateNeighbours(GridCell cell, boolean lightUp) {
-        updateRow(cell, -1, lightUp);
-        updateRow(cell, 1, lightUp);
-        updateColumn(cell, -1, lightUp);
-        updateColumn(cell, 1, lightUp);
-    }
-
-    // Light up cells in this row up until a black cell or the end of the grid
-    public void updateRow(GridCell cell, int value, boolean lightUp) {
-        float currX = cell.getCoords().x + value;
-        float y = cell.getCoords().y;
-        GridCell curr = cellMap.get(new Vector2(currX, y));
-        while (curr != null && curr.getState() != GridCell.State.BLACK) {
-            if (lightUp) {
-                curr.incrCount();
-                if (curr.getState() == GridCell.State.LIGHTBULB) {
-                    curr.incrConflict();
-                    cell.incrConflict();
-                }
-            } else {
-                curr.decrCount();
-                if (curr.getState() == GridCell.State.LIGHTBULB) {
-                    curr.decrConflict();
-                    cell.decrConflict();
-                }
-            }
-            currX = currX + value;
-            curr = cellMap.get(new Vector2(currX, y));
-        }
-    }
-
-    // Light up cells in this column up until a black cell or the end of the grid
-    public void updateColumn(GridCell cell, int value, boolean lightUp) {
-        float currY = cell.getCoords().y + value;
-        float x = cell.getCoords().x;
-        GridCell curr = cellMap.get(new Vector2(x, currY));
-        while (curr != null && curr.getState() != GridCell.State.BLACK) {
-            if (lightUp) {
-                curr.incrCount();
-                if (curr.getState() == GridCell.State.LIGHTBULB) {
-                    curr.incrConflict();
-                    cell.incrConflict();
-                }
-            } else {
-                curr.decrCount();
-                if (curr.getState() == GridCell.State.LIGHTBULB) {
-                    curr.decrConflict();
-                    cell.decrConflict();
-                }
-            }
-            currY = currY + value;
-            curr = cellMap.get(new Vector2(x, currY));
         }
     }
 
@@ -191,7 +91,7 @@ public class PlayScreen implements Screen {
         GlyphLayout layout = new GlyphLayout();
 
         // Draw the grid
-        Iterator<GridCell> itr = cellMap.values();
+        Iterator<GridCell> itr = grid.getCellMap().values();
         GridCell cell;
         while (itr.hasNext()) {
             cell = itr.next();
@@ -243,4 +143,10 @@ public class PlayScreen implements Screen {
         cellTexture.dispose();
         lightBulb.dispose();
     }
+
+    public void setBulbSize(float cellLength) {
+        float bulbHeight = cellLength * 3/4;
+        bulbSprite.setSize(bulbHeight/bulbSprite.getHeight() * bulbSprite.getWidth(), bulbHeight);
+    }
+
 }
