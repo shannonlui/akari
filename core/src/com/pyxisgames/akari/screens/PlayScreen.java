@@ -100,9 +100,10 @@ public class PlayScreen implements Screen {
                     System.out.println("Touched " + cell.getCoords());
                     if (cell.hasBulb()) {
                         cell.removeBulb();
+                        updateNeighbours(cell.getCoords(), false);
                     } else {
                         cell.addBulb();
-                        lightNeighbours(cell.getCoords());
+                        updateNeighbours(cell.getCoords(), true);
                     }
 
                 }
@@ -111,32 +112,40 @@ public class PlayScreen implements Screen {
     }
 
     // Light up the cells in the same column or row as the given vector
-    public void lightNeighbours(Vector2 coords) {
-        lightRow(coords, -1);
-        lightRow(coords, 1);
-        lightColumn(coords, -1);
-        lightColumn(coords, 1);
+    public void updateNeighbours(Vector2 coords, boolean lightUp) {
+        updateRow(coords, -1, lightUp);
+        updateRow(coords, 1, lightUp);
+        updateColumn(coords, -1, lightUp);
+        updateColumn(coords, 1, lightUp);
     }
 
     // Light up cells in this row up until a black cell or the end of the grid
-    public void lightRow(Vector2 coords, int value) {
+    public void updateRow(Vector2 coords, int value, boolean lightUp) {
         float currX = coords.x + value;
         float y = coords.y;
         GridCell curr = cellMap.get(new Vector2(currX, y));
         while (curr != null && !curr.isBlack()) {
-            curr.lightUp();
+            if (lightUp) {
+                curr.lightUp();
+            } else {
+                curr.decrCount();
+            }
             currX = currX + value;
             curr = cellMap.get(new Vector2(currX, y));
         }
     }
 
     // Light up cells in this column up until a black cell or the end of the grid
-    public void lightColumn(Vector2 coords, int value) {
+    public void updateColumn(Vector2 coords, int value, boolean lightUp) {
         float currY = coords.y + value;
         float x = coords.x;
         GridCell curr = cellMap.get(new Vector2(x, currY));
         while (curr != null && !curr.isBlack()) {
-            curr.lightUp();
+            if (lightUp) {
+                curr.lightUp();
+            } else {
+                curr.decrCount();
+            }
             currY = currY + value;
             curr = cellMap.get(new Vector2(x, currY));
         }

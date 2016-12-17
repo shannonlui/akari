@@ -39,23 +39,24 @@ public class GridCell extends Sprite {
         setColor(Color.DARK_GRAY);
     }
 
-    public void lightUp() {
-        setColor(Color.valueOf("#f4e648"));
-
-    }
-
     public void addBulb() {
         hasBulb = true;
-        count++;
         lightUp();
     }
 
     public void removeBulb() {
         hasBulb = false;
-        decCount();
+        decrCount();
     }
 
-    public void decCount() {
+    public void lightUp() {
+        count++;
+        if (count == 1) {
+            setColor(Color.valueOf("#f4e648"));
+        }
+    }
+
+    public void decrCount() {
         count--;
         if (count == 0) {
             setColor(Color.WHITE);
