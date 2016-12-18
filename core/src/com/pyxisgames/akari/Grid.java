@@ -1,4 +1,4 @@
-package com.pyxisgames.akari.screens;
+package com.pyxisgames.akari;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;

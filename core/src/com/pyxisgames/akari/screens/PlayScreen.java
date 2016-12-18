@@ -10,14 +10,11 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.pyxisgames.akari.Akari;
+import com.pyxisgames.akari.Grid;
 import com.pyxisgames.akari.GridCell;
 
 import java.util.Iterator;
@@ -30,7 +27,6 @@ public class PlayScreen implements Screen {
     private Akari game;
     private OrthographicCamera cam;
     private Viewport vp;
-    private BitmapFont font;
     private Grid grid;
 
     // Textures and Sprites
@@ -56,13 +52,6 @@ public class PlayScreen implements Screen {
        // createGrid();
         grid = new Grid(7, 7, 2);
         setBulbSize(grid.getCellLength());
-
-        // Generate font for cells
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("./fonts/vanilla-extract.regular.ttf"));
-        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 18;
-        font = generator.generateFont(parameter); // font size 12 pixels
-        generator.dispose();
     }
 
     public void update(float delta) {
@@ -103,10 +92,10 @@ public class PlayScreen implements Screen {
                     if (cell.getBlackNum() > 0) {
                         // Label the black cell with its number
                         String num = Integer.toString(cell.getBlackNum());
-                        layout.setText(font, num);
+                        layout.setText(game.font, num);
                         float fontX = cell.getX() + (cell.getWidth() - layout.width) / 2;
                         float fontY = cell.getY() + (cell.getHeight() + layout.height) / 2;
-                        font.draw(game.batch, num, fontX, fontY);
+                        game.font.draw(game.batch, num, fontX, fontY);
                     }
                     break;
                 case CONFLICT:
@@ -142,9 +131,7 @@ public class PlayScreen implements Screen {
 
     @Override
     public void dispose() {
-        game.batch.dispose();
-        cellTexture.dispose();
-        lightBulb.dispose();
+
     }
 
     public void setBulbSize(float cellLength) {
