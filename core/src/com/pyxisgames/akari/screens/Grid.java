@@ -27,7 +27,6 @@ public class Grid {
     private float cellLength;
 
     private ObjectMap<Vector2, GridCell> cellMap = new ObjectMap();
-
     private Texture cellTexture;
 
     public Grid(int width, int height, int lvl) {
@@ -69,7 +68,7 @@ public class Grid {
         }
     }
 
-    public void update(Vector3 touchPos) {
+    public boolean update(Vector3 touchPos) {
         // Iterate through the grid to check if a cell has been touched.
         Iterator<GridCell> itr = cellMap.values();
         GridCell cell;
@@ -78,19 +77,70 @@ public class Grid {
             if (cell.getState() != GridCell.State.BLACK
                     && cell.getBoundingRectangle().contains(touchPos.x, touchPos.y)) {
                 System.out.println("Touched " + cell.getCoords());
-                if (cell.getState() == GridCell.State.LIGHTBULB) {
+                if (cell.getState() == GridCell.State.LIGHTBULB
+                        || cell.getState() == GridCell.State.CONFLICT) {
                     cell.removeBulb();
                     updateNeighbours(cell, false);
                 } else {
                     cell.addBulb();
                     updateNeighbours(cell, true);
+                    return isGridCleared();
                 }
 
             }
         }
+        return false;
     }
 
-    // Light up the cells in the same column or row as the given vector
+    // Check if grid is cleared, i.e. there are no conflict or empty cells, and all
+    // black cells have the correct number of surrounding light bulbs.
+    public boolean isGridCleared() {
+        boolean isClear = true;
+        Iterator<GridCell> itr = cellMap.values();
+        GridCell cell;
+        while (itr.hasNext() && isClear) {
+            cell = itr.next();
+            switch (cell.getState()) {
+                case BLACK:
+                    if (!clearedBlack(cell)) {
+                        isClear = false;
+                    }
+                    break;
+                case EMPTY:
+                case CONFLICT:
+                    isClear = false;
+                    break;
+            }
+        }
+        return isClear;
+    }
+
+    // For all cells sharing an edge with this black cell, check how many has a light bulb.
+    // Return true if the number of light bulb cells equal to the blackNum of this cell.
+    public boolean clearedBlack(GridCell cell) {
+        float x = cell.getCoords().x;
+        float y = cell.getCoords().y;
+        int count = 0;
+        count = clearedBlackHelper(x - 1, y, count);
+        count = clearedBlackHelper(x + 1, y, count);
+        count = clearedBlackHelper(x, y + 1, count);
+        count = clearedBlackHelper(x, y - 1, count);
+        if (count == cell.getBlackNum()) {
+            return true;
+        }
+        return false;
+    }
+
+    public int clearedBlackHelper(float x, float y, int count) {
+        GridCell cell = cellMap.get(new Vector2(x, y));
+        if (cell != null && cell.getState() == GridCell.State.LIGHTBULB) {
+            count++;
+        }
+        return count;
+    }
+
+
+    // Light up the cells in the same column or row as the given cell
     public void updateNeighbours(GridCell cell, boolean lightUp) {
         updateRow(cell, -1, lightUp);
         updateRow(cell, 1, lightUp);
@@ -106,15 +156,15 @@ public class Grid {
         while (curr != null && curr.getState() != GridCell.State.BLACK) {
             if (lightUp) {
                 curr.incrCount();
-                if (curr.getState() == GridCell.State.LIGHTBULB) {
+                if (curr.getState() == GridCell.State.LIGHTBULB
+                        || curr.getState() == GridCell.State.CONFLICT) {
                     curr.incrConflict();
                     cell.incrConflict();
                 }
             } else {
                 curr.decrCount();
-                if (curr.getState() == GridCell.State.LIGHTBULB) {
+                if (curr.getState() == GridCell.State.CONFLICT) {
                     curr.decrConflict();
-                    cell.decrConflict();
                 }
             }
             currX = currX + value;
@@ -130,15 +180,15 @@ public class Grid {
         while (curr != null && curr.getState() != GridCell.State.BLACK) {
             if (lightUp) {
                 curr.incrCount();
-                if (curr.getState() == GridCell.State.LIGHTBULB) {
+                if (curr.getState() == GridCell.State.LIGHTBULB
+                        || curr.getState() == GridCell.State.CONFLICT) {
                     curr.incrConflict();
                     cell.incrConflict();
                 }
             } else {
                 curr.decrCount();
-                if (curr.getState() == GridCell.State.LIGHTBULB) {
+                if (curr.getState() == GridCell.State.CONFLICT) {
                     curr.decrConflict();
-                    cell.decrConflict();
                 }
             }
             currY = currY + value;

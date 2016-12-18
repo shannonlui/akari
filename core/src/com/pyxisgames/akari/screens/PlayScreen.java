@@ -30,7 +30,6 @@ public class PlayScreen implements Screen {
     private Akari game;
     private OrthographicCamera cam;
     private Viewport vp;
-    private ObjectMap<Vector2, GridCell> cellMap = new ObjectMap();
     private BitmapFont font;
     private Grid grid;
 
@@ -68,13 +67,15 @@ public class PlayScreen implements Screen {
 
     public void update(float delta) {
         // If touch detected, get touch position
+        boolean clear = true;
         if (Gdx.input.justTouched()) {
             Vector3 touchPos = new Vector3();
             touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
             vp.unproject(touchPos);
 
-            grid.update(touchPos);
-
+            if (grid.update(touchPos)) {
+                System.out.println("LEVEL CLEARED!");
+            }
         }
     }
 
@@ -98,18 +99,20 @@ public class PlayScreen implements Screen {
             cell.draw(game.batch);
             // Draw light bulb on top of cell if cell has bulb
             switch (cell.getState()) {
-                case LIGHTBULB:
-                    bulbSprite.setCenter(cell.getX() + cell.getWidth()/2, cell.getY() + cell.getHeight()/2);
-                    bulbSprite.draw(game.batch);
-                    break;
                 case BLACK:
-                    if (cell.getBlackNumber() > 0) {
-                        String num = Integer.toString(cell.getBlackNumber());
+                    if (cell.getBlackNum() > 0) {
+                        // Label the black cell with its number
+                        String num = Integer.toString(cell.getBlackNum());
                         layout.setText(font, num);
                         float fontX = cell.getX() + (cell.getWidth() - layout.width) / 2;
                         float fontY = cell.getY() + (cell.getHeight() + layout.height) / 2;
                         font.draw(game.batch, num, fontX, fontY);
                     }
+                    break;
+                case CONFLICT:
+                case LIGHTBULB:
+                    bulbSprite.setCenter(cell.getX() + cell.getWidth()/2, cell.getY() + cell.getHeight()/2);
+                    bulbSprite.draw(game.batch);
                     break;
             }
         }

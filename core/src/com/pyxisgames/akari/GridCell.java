@@ -12,14 +12,14 @@ import com.badlogic.gdx.math.Vector2;
 
 public class GridCell extends Sprite {
     public enum State {
-        EMPTY, BLACK, LIGHTBULB, CONFLICT
+        EMPTY, BLACK, LIGHTBULB, CONFLICT, LIT
     }
 
     private Vector2 coords;
     private State state;
     private int lightCount = 0;
     private int conflictCount = 0;
-    private int blackNumber = 0;
+    private int blackNum = 0;
 
     public GridCell(Texture texture, int x, int y) {
         super(texture);
@@ -31,8 +31,24 @@ public class GridCell extends Sprite {
         return coords;
     }
 
+    // Change state of the cell and tint color corresponding to the state
     public void setState(State state) {
         this.state = state;
+        switch (state) {
+            case EMPTY:
+                setColor(Color.valueOf("#e8e8e8"));
+                break;
+            case BLACK:
+                setColor(Color.DARK_GRAY);
+                break;
+            case CONFLICT:
+                setColor(Color.valueOf("#ff8a8a"));
+                break;
+            case LIGHTBULB:
+            case LIT:
+                setColor(Color.valueOf("#b6f2f6"));
+                break;
+        }
     }
 
     public State getState() {
@@ -41,8 +57,7 @@ public class GridCell extends Sprite {
 
     public void tintBlack(int num) {
         setState(State.BLACK);
-        setColor(Color.DARK_GRAY);
-        blackNumber = num;
+        blackNum = num;
     }
 
     public void addBulb() {
@@ -51,39 +66,44 @@ public class GridCell extends Sprite {
     }
 
     public void removeBulb() {
-        setState(State.EMPTY);
+        conflictCount = 0;
+        if (state == State.CONFLICT) {
+            setState(State.LIT);
+        }
         decrCount();
     }
 
     public void incrCount() {
         lightCount++;
         if (lightCount == 1) {
-            setColor(Color.valueOf("#b6f2f6"));
+            if (state == State.EMPTY) {
+                setState(State.LIT);
+            }
         }
     }
 
     public void decrCount() {
         lightCount--;
         if (lightCount == 0) {
-            setColor(Color.valueOf("#e8e8e8"));
+            setState(State.EMPTY);
         }
     }
 
     public void incrConflict() {
         conflictCount++;
         if (conflictCount == 1) {
-            setColor(Color.valueOf("#ff8a8a"));
+            setState(State.CONFLICT);
         }
     }
 
     public void decrConflict() {
         conflictCount--;
         if (conflictCount == 0) {
-            setColor(Color.valueOf("#b6f2f6"));
+            setState(State.LIGHTBULB);
         }
     }
 
-    public int getBlackNumber() {
-        return blackNumber;
+    public int getBlackNum() {
+        return blackNum;
     }
 }
