@@ -55,7 +55,7 @@ public class PlayScreen implements Screen {
         bulbSprite.setColor(Color.DARK_GRAY);
 
        // createGrid();
-        grid = new Grid(7, 7);
+        grid = new Grid(7, 7, 2);
         setBulbSize(grid.getCellLength());
 
         // Generate font for cells

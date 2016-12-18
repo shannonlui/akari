@@ -1,8 +1,13 @@
 package com.pyxisgames.akari.screens;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.pyxisgames.akari.Akari;
 import com.pyxisgames.akari.GridCell;
@@ -24,27 +29,24 @@ public class Grid {
 
     private Texture cellTexture;
 
-    public Grid(int width, int height) {
+    public Grid(int width, int height, int lvl) {
         cellTexture = new Texture("cell.png");
         cellTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         this.width = width;
         this.height = height;
-        createGrid();
+        createGrid(lvl);
     }
 
-    public void createGrid() {
+    public void createGrid(int lvlNum) {
         cellLength = (Akari.GAME_WIDTH - ((width + 1) * borderWidth))/width;
         float yStartPos = (Akari.GAME_HEIGHT - ((height - 1) * borderWidth) - cellLength * height) / 2;
         float x = borderWidth;
         float y = yStartPos;
 
-        // Add cells to the cellMap
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) {
+        // Add blank cells to the cellMap
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
                 GridCell cell = new GridCell(cellTexture, i, j);
-                if ((i == 2 && j == 4) || (i==4 && j ==1)) {
-                    cell.tintBlack(3);
-                }
                 cell.setSize(cellLength, cellLength);
                 cell.setPosition(x, y);
 
@@ -53,6 +55,15 @@ public class Grid {
             }
             x += borderWidth + cellLength;
             y = yStartPos;
+        }
+
+        // Add black cells from level data file
+        FileHandle handle = Gdx.files.internal("levels/easy.json");
+        JsonValue root = new JsonReader().parse(handle);
+        JsonValue blackCells = root.get("levels").get(lvlNum).get("blackCells");
+        for (JsonValue blk : blackCells) {
+            GridCell curr = cellMap.get(new Vector2(blk.get(0).asFloat(), blk.get(1).asFloat()));
+            curr.tintBlack(blk.get(2).asInt());
         }
     }
 
