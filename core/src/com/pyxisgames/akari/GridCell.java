@@ -58,28 +58,28 @@ public class GridCell extends Sprite {
     public void incrCount() {
         lightCount++;
         if (lightCount == 1) {
-            setColor(Color.valueOf("#f4e648"));
+            setColor(Color.valueOf("#b6f2f6"));
         }
     }
 
     public void decrCount() {
         lightCount--;
         if (lightCount == 0) {
-            setColor(Color.WHITE);
+            setColor(Color.valueOf("#e8e8e8"));
         }
     }
 
     public void incrConflict() {
         conflictCount++;
         if (conflictCount == 1) {
-            setColor(Color.FIREBRICK);
+            setColor(Color.valueOf("#ff8a8a"));
         }
     }
 
     public void decrConflict() {
         conflictCount--;
         if (conflictCount == 0) {
-            setColor(Color.valueOf("#f4e648"));
+            setColor(Color.valueOf("#b6f2f6"));
         }
     }
 

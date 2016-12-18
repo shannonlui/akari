@@ -2,6 +2,7 @@ package com.pyxisgames.akari.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -22,7 +23,7 @@ public class Grid {
     // Grid dimensions
     private int width;
     private int height;
-    private float borderWidth = 5;
+    private float borderWidth = 3;
     private float cellLength;
 
     private ObjectMap<Vector2, GridCell> cellMap = new ObjectMap();
@@ -49,6 +50,7 @@ public class Grid {
                 GridCell cell = new GridCell(cellTexture, i, j);
                 cell.setSize(cellLength, cellLength);
                 cell.setPosition(x, y);
+                cell.setColor(Color.valueOf("#e8e8e8"));
 
                 cellMap.put(new Vector2(i, j), cell);
                 y += borderWidth + cellLength;
