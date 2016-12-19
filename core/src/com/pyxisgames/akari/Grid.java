@@ -25,6 +25,7 @@ public class Grid {
     private int height;
     private float borderWidth = 3;
     private float cellLength;
+    public boolean cleared = false;
 
     private ObjectMap<Vector2, GridCell> cellMap = new ObjectMap();
     private Texture cellTexture;
@@ -39,7 +40,8 @@ public class Grid {
 
     public void createGrid(int lvlNum) {
         cellLength = (Akari.GAME_WIDTH - ((width + 1) * borderWidth))/width;
-        float yStartPos = (Akari.GAME_HEIGHT - ((height - 1) * borderWidth) - cellLength * height) / 2;
+       // float yStartPos = (Akari.GAME_HEIGHT - ((height - 1) * borderWidth) - cellLength * height) / 2;
+        float yStartPos = 690 - (height - 1) * borderWidth - cellLength * height;
         float x = borderWidth;
         float y = yStartPos;
 
@@ -84,9 +86,9 @@ public class Grid {
                 } else {
                     cell.addBulb();
                     updateNeighbours(cell, true);
-                    return isGridCleared();
+                    isGridCleared();
                 }
-
+                return true;
             }
         }
         return false;
@@ -94,7 +96,7 @@ public class Grid {
 
     // Check if grid is cleared, i.e. there are no conflict or empty cells, and all
     // black cells have the correct number of surrounding light bulbs.
-    public boolean isGridCleared() {
+    public void isGridCleared() {
         boolean isClear = true;
         Iterator<GridCell> itr = cellMap.values();
         GridCell cell;
@@ -112,7 +114,7 @@ public class Grid {
                     break;
             }
         }
-        return isClear;
+        cleared = isClear;
     }
 
     // For all cells sharing an edge with this black cell, check how many has a light bulb.

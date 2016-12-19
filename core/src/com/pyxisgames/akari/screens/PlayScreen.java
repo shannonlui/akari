@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.pyxisgames.akari.Akari;
 import com.pyxisgames.akari.Grid;
 import com.pyxisgames.akari.GridCell;
+import com.pyxisgames.akari.Hud;
 
 import java.util.Iterator;
 
@@ -28,11 +29,12 @@ public class PlayScreen implements Screen {
     private OrthographicCamera cam;
     private Viewport vp;
     private Grid grid;
+    private int lvl = 1;
+    private Hud hud;
 
     // Textures and Sprites
-    private Texture cellTexture;
-    private Texture lightBulb;
     private Sprite bulbSprite;
+    private Sprite backSprite;
 
 
     public PlayScreen(Akari game) {
@@ -40,14 +42,15 @@ public class PlayScreen implements Screen {
         cam = new OrthographicCamera();
         cam.position.set(Akari.GAME_WIDTH / 2, Akari.GAME_HEIGHT / 2, 0);
         vp = new FitViewport(Akari.GAME_WIDTH, Akari.GAME_HEIGHT, cam);
+        hud = new Hud(game, vp, lvl);
 
         // Set up textures and sprites
-        cellTexture = new Texture("cell.png");
-        cellTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-        lightBulb = new Texture("light_bulb9.png");
-        lightBulb.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-        bulbSprite = new Sprite(lightBulb);
+        bulbSprite = new Sprite(game.lightBulb);
         bulbSprite.setColor(Color.DARK_GRAY);
+        backSprite = new Sprite(game.backTexture);
+        backSprite.setColor(Color.DARK_GRAY);
+        backSprite.setSize(30, 30);
+        backSprite.setPosition(15, 760);
 
        // createGrid();
         grid = new Grid(7, 7, 2);
@@ -56,14 +59,17 @@ public class PlayScreen implements Screen {
 
     public void update(float delta) {
         // If touch detected, get touch position
-        boolean clear = true;
-        if (Gdx.input.justTouched()) {
+        if (Gdx.input.justTouched() && !grid.cleared) {
             Vector3 touchPos = new Vector3();
             touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
             vp.unproject(touchPos);
 
             if (grid.update(touchPos)) {
-                System.out.println("LEVEL CLEARED!");
+                hud.updateMoves();
+
+                if (grid.cleared) {
+                    System.out.println("LEVEL CLEARED with moves=" + hud.getMoves());
+                }
             }
         }
     }
@@ -77,10 +83,17 @@ public class PlayScreen implements Screen {
         game.batch.setProjectionMatrix(cam.combined);
 
         game.batch.begin();
+        drawGrid();
+        /*backSprite.draw(game.batch);
+        game.labelFont.draw(game.batch, "level " + lvl, 60, 785);*/
 
+        game.batch.end();
+
+        hud.stage.draw();
+    }
+
+    public void drawGrid() {
         GlyphLayout layout = new GlyphLayout();
-
-        // Draw the grid
         Iterator<GridCell> itr = grid.getCellMap().values();
         GridCell cell;
         while (itr.hasNext()) {
@@ -92,10 +105,10 @@ public class PlayScreen implements Screen {
                     if (cell.getBlackNum() > 0) {
                         // Label the black cell with its number
                         String num = Integer.toString(cell.getBlackNum());
-                        layout.setText(game.font, num);
+                        layout.setText(game.numFont, num);
                         float fontX = cell.getX() + (cell.getWidth() - layout.width) / 2;
                         float fontY = cell.getY() + (cell.getHeight() + layout.height) / 2;
-                        game.font.draw(game.batch, num, fontX, fontY);
+                        game.numFont.draw(game.batch, num, fontX, fontY);
                     }
                     break;
                 case CONFLICT:
@@ -105,11 +118,11 @@ public class PlayScreen implements Screen {
                     break;
             }
         }
-        game.batch.end();
     }
 
     @Override
     public void show() {
+        Gdx.input.setInputProcessor(hud.stage);
     }
 
     @Override
@@ -131,7 +144,8 @@ public class PlayScreen implements Screen {
 
     @Override
     public void dispose() {
-
+        hud.dispose();
+        Gdx.input.setInputProcessor(null);
     }
 
     public void setBulbSize(float cellLength) {
