@@ -2,6 +2,7 @@ package com.pyxisgames.akari;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
@@ -21,6 +22,8 @@ public class Akari extends Game {
 	public Texture cellTexture;
 	public Texture backTexture;
 	public Texture lightBulb;
+	public InputMultiplexer inputMultiplexer;
+
 
 	@Override
 	public void create () {
@@ -33,7 +36,7 @@ public class Akari extends Game {
 		lightBulb.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 		// Generate font for cells
 
-		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("./fonts/vanilla-extract.regular.ttf"));
+		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/vanilla-extract.regular.ttf"));
 		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 		parameter.size = 26;
 		numFont = generator.generateFont(parameter);
@@ -41,21 +44,25 @@ public class Akari extends Game {
 		//labelFont = generator.generateFont(parameter);
 		generator.dispose();
 
-		FreeTypeFontGenerator titleFontGen = new FreeTypeFontGenerator(Gdx.files.internal("./fonts/glass-antiqua.regular.ttf"));
-		parameter.size = 70;
+		FreeTypeFontGenerator titleFontGen = new FreeTypeFontGenerator(Gdx.files.internal("fonts/lane.narrow.ttf"));
+		parameter.size = 85;
 		parameter.color = Color.DARK_GRAY;
 		titleFont = titleFontGen.generateFont(parameter);
 		titleFontGen.dispose();
 
-		FreeTypeFontGenerator labelFontGen = new FreeTypeFontGenerator(Gdx.files.internal("./fonts/ek-mukta.regular.ttf"));
+		FreeTypeFontGenerator labelFontGen = new FreeTypeFontGenerator(Gdx.files.internal("fonts/ek-mukta.regular.ttf"));
 		parameter.size = 28;
-		parameter.color = Color.DARK_GRAY;
+		//parameter.color = Color.DARK_GRAY;
+		parameter.color = Color.WHITE;
 		labelFont = labelFontGen.generateFont(parameter);
 		labelFontGen.dispose();
 
 		numFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 		titleFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 		labelFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+
+		inputMultiplexer = new InputMultiplexer();
+		Gdx.input.setInputProcessor(inputMultiplexer);
 
 		setScreen(new MainMenuScreen(this));
 
@@ -73,7 +80,7 @@ public class Akari extends Game {
 
 	public void prevScreen() {
 		Screen old = getScreen();
-		setScreen(new MainMenuScreen(this));
 		old.dispose();
+		setScreen(new MainMenuScreen(this));
 	}
 }

@@ -10,6 +10,8 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.input.GestureDetector;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -24,13 +26,14 @@ import java.util.Iterator;
  * Created by shannonlui on 2016-12-11.
  */
 
-public class PlayScreen implements Screen {
+public class PlayScreen implements Screen, GestureDetector.GestureListener {
     private Akari game;
     private OrthographicCamera cam;
     private Viewport vp;
     private Grid grid;
     private int lvl = 1;
     private Hud hud;
+    private GestureDetector gestureDetector;
 
     // Textures and Sprites
     private Sprite bulbSprite;
@@ -43,6 +46,9 @@ public class PlayScreen implements Screen {
         cam.position.set(Akari.GAME_WIDTH / 2, Akari.GAME_HEIGHT / 2, 0);
         vp = new FitViewport(Akari.GAME_WIDTH, Akari.GAME_HEIGHT, cam);
         hud = new Hud(game, vp, lvl);
+        game.inputMultiplexer.addProcessor(hud.stage);
+        gestureDetector = new GestureDetector(this);
+        game.inputMultiplexer.addProcessor(gestureDetector);
 
         // Set up textures and sprites
         bulbSprite = new Sprite(game.lightBulb);
@@ -57,26 +63,9 @@ public class PlayScreen implements Screen {
         setBulbSize(grid.getCellLength());
     }
 
-    public void update(float delta) {
-        // If touch detected, get touch position
-        if (Gdx.input.justTouched() && !grid.cleared) {
-            Vector3 touchPos = new Vector3();
-            touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
-            vp.unproject(touchPos);
-
-            if (grid.update(touchPos)) {
-                hud.updateMoves();
-
-                if (grid.cleared) {
-                    System.out.println("LEVEL CLEARED with moves=" + hud.getMoves());
-                }
-            }
-        }
-    }
-
     @Override
     public void render(float delta) {
-        update(delta);
+       // update(delta);
 
         Gdx.gl.glClearColor(1f, 1f, 1f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -122,7 +111,7 @@ public class PlayScreen implements Screen {
 
     @Override
     public void show() {
-        Gdx.input.setInputProcessor(hud.stage);
+        //Gdx.input.setInputProcessor(hud.stage);
     }
 
     @Override
@@ -144,8 +133,9 @@ public class PlayScreen implements Screen {
 
     @Override
     public void dispose() {
+        game.inputMultiplexer.removeProcessor(hud.stage);
+        game.inputMultiplexer.removeProcessor(gestureDetector);
         hud.dispose();
-        Gdx.input.setInputProcessor(null);
     }
 
     public void setBulbSize(float cellLength) {
@@ -153,4 +143,64 @@ public class PlayScreen implements Screen {
         bulbSprite.setSize(bulbHeight/bulbSprite.getHeight() * bulbSprite.getWidth(), bulbHeight);
     }
 
+
+
+    /* Gesture */
+    @Override
+    public boolean tap(float x, float y, int count, int button) {
+        if (!grid.cleared) {
+            Vector3 touchPos = new Vector3();
+            touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+            vp.unproject(touchPos);
+
+            if (grid.update(touchPos)) {
+                hud.updateMoves();
+
+                if (grid.cleared) {
+                    System.out.println("LEVEL CLEARED with moves=" + hud.getMoves());
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean touchDown(float x, float y, int pointer, int button) {
+        return false;
+    }
+
+    @Override
+    public boolean longPress(float x, float y) {
+        return false;
+    }
+
+    @Override
+    public boolean fling(float velocityX, float velocityY, int button) {
+        return false;
+    }
+
+    @Override
+    public boolean pan(float x, float y, float deltaX, float deltaY) {
+        return false;
+    }
+
+    @Override
+    public boolean panStop(float x, float y, int pointer, int button) {
+        return false;
+    }
+
+    @Override
+    public boolean zoom(float initialDistance, float distance) {
+        return false;
+    }
+
+    @Override
+    public boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2, Vector2 pointer1, Vector2 pointer2) {
+        return false;
+    }
+
+    @Override
+    public void pinchStop() {
+
+    }
 }
