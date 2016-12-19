@@ -31,7 +31,7 @@ public class MainMenuScreen implements Screen {
     //float width = 9;
     private float width = 2;
     private float borderEdge = 25;
-    private float borderBetween = 10;
+    private float borderBetween = 5;
     private float cellLength;
     private float initialY = 180;
     private Stage stage;
@@ -63,7 +63,7 @@ public class MainMenuScreen implements Screen {
                 game.setScreen(new PlayScreen(game));
             }
         };
-        newButton(borderEdge,  initialY + borderBetween + cellLength, Color.valueOf("#fffd9e"), Color.GRAY, easyListener, "easy");
+        newButton(borderEdge,  initialY + borderBetween + cellLength, Color.valueOf("#fffda3"), Color.GRAY, easyListener, "easy");
 
         // Medium button
         ClickListener medListener = new ClickListener() {
@@ -74,7 +74,7 @@ public class MainMenuScreen implements Screen {
             }
         };
         newButton(borderEdge + cellLength + borderBetween,  initialY + borderBetween + cellLength,
-                Color.valueOf("#73e0e7"), Color.WHITE, medListener, "medium");
+                Color.valueOf("#9cecf2"), Color.WHITE, medListener, "medium");
 
         // Hard button
         ClickListener hardListener = new ClickListener() {
@@ -84,7 +84,7 @@ public class MainMenuScreen implements Screen {
                 game.setScreen(new PlayScreen(game));
             }
         };
-        newButton(borderEdge, initialY, Color.valueOf("#ff7575"), Color.WHITE, hardListener, "hard");
+        newButton(borderEdge, initialY, Color.valueOf("#ff8a8a"), Color.WHITE, hardListener, "hard");
 
         // Settings button
         ClickListener settingsListener = new ClickListener() {
