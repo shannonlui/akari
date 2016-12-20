@@ -200,6 +200,10 @@ public class PlayScreen implements Screen, GestureDetector.GestureListener {
         return false;
     }
 
+    public void resetGrid() {
+        grid.reset();
+    }
+
     @Override
     public void pinchStop() {
 

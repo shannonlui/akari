@@ -106,4 +106,10 @@ public class GridCell extends Sprite {
     public int getBlackNum() {
         return blackNum;
     }
+    public int getLightCount() {return lightCount;}
+    public int getConflictCount() {return conflictCount;}
+    public void resetCounts() {
+        lightCount = 0;
+        conflictCount = 0;
+    }
 }

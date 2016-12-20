@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.pyxisgames.akari.screens.PlayScreen;
 
 /**
  * Created by shannonlui on 2016-12-18.
@@ -54,13 +55,16 @@ public class Hud implements Disposable {
         bestLabel.setPosition(Akari.GAME_WIDTH - bestLabel.getWidth() - 15, 685);
         stage.addActor(bestLabel);
 
-        // Akari.GAME_WIDTH / 2 -
         Actor restartLabel = new Label("restart", style);
         restartLabel.setPosition((Akari.GAME_WIDTH - restartLabel.getWidth()) /2, 150);
         restartLabel.addListener(new ClickListener() {
             @Override
             public void clicked (InputEvent event, float x, float y) {
-                //akari.prevScreen();
+                resetMoves();
+                if (akari.getScreen() instanceof PlayScreen) {
+                    PlayScreen ps = (PlayScreen) (akari.getScreen());
+                    ps.resetGrid();
+                }
             }
         });
         stage.addActor(restartLabel);
@@ -80,5 +84,10 @@ public class Hud implements Disposable {
 
     public int getMoves() {
         return moves;
+    }
+
+    public void resetMoves() {
+        moves = 0;
+        movesLabel.setText("moves: " + moves);
     }
 }

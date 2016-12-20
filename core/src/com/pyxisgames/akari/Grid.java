@@ -199,6 +199,20 @@ public class Grid {
         }
     }
 
+    // Remove all light bulbs added to grid
+    public void reset() {
+        cleared = false;
+        Iterator<GridCell> itr = cellMap.values();
+        GridCell cell;
+        while (itr.hasNext()) {
+            cell = itr.next();
+            if (cell.getState() != GridCell.State.BLACK) {
+                cell.setState(GridCell.State.EMPTY);
+                cell.resetCounts();
+            }
+        }
+    }
+
     public ObjectMap<Vector2, GridCell> getCellMap() {
         return cellMap;
     }
