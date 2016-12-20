@@ -83,6 +83,7 @@ public class Grid {
                         || cell.getState() == GridCell.State.CONFLICT) {
                     cell.removeBulb();
                     updateNeighbours(cell, false);
+                    isGridCleared();
                 } else {
                     cell.addBulb();
                     updateNeighbours(cell, true);
@@ -104,7 +105,7 @@ public class Grid {
             cell = itr.next();
             switch (cell.getState()) {
                 case BLACK:
-                    if (!clearedBlack(cell)) {
+                    if (cell.getBlackNum() < 5 && !clearedBlack(cell)) {
                         isClear = false;
                     }
                     break;

@@ -60,7 +60,7 @@ public class MainMenuScreen implements Screen {
             @Override
             public void clicked (InputEvent event, float x, float y) {
                 dispose();
-                game.setScreen(new PlayScreen(game));
+                game.setScreen(new SelectLevelScreen(game, Akari.Difficulty.EASY));
             }
         };
         newButton(borderEdge,  initialY + borderBetween + cellLength, Color.valueOf("#fffda3"), Color.GRAY, easyListener, "easy");
@@ -70,7 +70,7 @@ public class MainMenuScreen implements Screen {
             @Override
             public void clicked (InputEvent event, float x, float y) {
                 dispose();
-                game.setScreen(new PlayScreen(game));
+                game.setScreen(new PlayScreen(game, 1));
             }
         };
         newButton(borderEdge + cellLength + borderBetween,  initialY + borderBetween + cellLength,
@@ -81,7 +81,7 @@ public class MainMenuScreen implements Screen {
             @Override
             public void clicked (InputEvent event, float x, float y) {
                 dispose();
-                game.setScreen(new PlayScreen(game));
+                game.setScreen(new PlayScreen(game, 1));
             }
         };
         newButton(borderEdge, initialY, Color.valueOf("#ff8a8a"), Color.WHITE, hardListener, "hard");
@@ -131,19 +131,6 @@ public class MainMenuScreen implements Screen {
         GlyphLayout layout = new GlyphLayout();
 
         game.batch.begin();
-
-        /*cell.setPosition(borderEdge, initialY);
-        cell.draw(game.batch);
-        cell.setPosition(borderEdge + cellLength + borderBetween, initialY);
-        cell.draw(game.batch);
-
-        cell.setPosition(borderEdge, initialY + borderBetween + cellLength);
-        cell.draw(game.batch);
-        cell.setPosition(borderEdge + cellLength + borderBetween, initialY + borderBetween + cellLength);
-        cell.draw(game.batch);*/
-
-
-
         String title = "akari";
         layout.setText(game.titleFont, title);
         float fontX = (Akari.GAME_WIDTH - layout.width) / 2;
@@ -153,10 +140,6 @@ public class MainMenuScreen implements Screen {
 
         stage.draw();
 
-        /*if (Gdx.input.justTouched()) {
-            game.setScreen(new PlayScreen(game));
-            dispose();
-        }*/
     }
 
     @Override

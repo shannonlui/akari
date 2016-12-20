@@ -31,7 +31,7 @@ public class PlayScreen implements Screen, GestureDetector.GestureListener {
     private OrthographicCamera cam;
     private Viewport vp;
     private Grid grid;
-    private int lvl = 1;
+    private int lvl;
     private Hud hud;
     private GestureDetector gestureDetector;
 
@@ -40,11 +40,12 @@ public class PlayScreen implements Screen, GestureDetector.GestureListener {
     private Sprite backSprite;
 
 
-    public PlayScreen(Akari game) {
+    public PlayScreen(Akari game, int lvl) {
         this.game = game;
         cam = new OrthographicCamera();
         cam.position.set(Akari.GAME_WIDTH / 2, Akari.GAME_HEIGHT / 2, 0);
         vp = new FitViewport(Akari.GAME_WIDTH, Akari.GAME_HEIGHT, cam);
+        this.lvl = lvl;
         hud = new Hud(game, vp, lvl);
         game.inputMultiplexer.addProcessor(hud.stage);
         gestureDetector = new GestureDetector(this);
@@ -59,7 +60,7 @@ public class PlayScreen implements Screen, GestureDetector.GestureListener {
         backSprite.setPosition(15, 760);
 
        // createGrid();
-        grid = new Grid(7, 7, 2);
+        grid = new Grid(5, 5, lvl);
         setBulbSize(grid.getCellLength());
     }
 
@@ -91,7 +92,7 @@ public class PlayScreen implements Screen, GestureDetector.GestureListener {
             // Draw light bulb on top of cell if cell has bulb
             switch (cell.getState()) {
                 case BLACK:
-                    if (cell.getBlackNum() > 0) {
+                    if (cell.getBlackNum() < 5) {
                         // Label the black cell with its number
                         String num = Integer.toString(cell.getBlackNum());
                         layout.setText(game.numFont, num);

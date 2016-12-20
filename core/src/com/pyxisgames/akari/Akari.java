@@ -13,6 +13,10 @@ import com.pyxisgames.akari.screens.MainMenuScreen;
 import com.pyxisgames.akari.screens.PlayScreen;
 
 public class Akari extends Game {
+	public enum Difficulty {
+		EASY, MEDIUM, HARD
+	}
+
 	public SpriteBatch batch;
 	public static final int GAME_WIDTH = 480;
 	public static final int GAME_HEIGHT = 800;
@@ -23,7 +27,6 @@ public class Akari extends Game {
 	public Texture backTexture;
 	public Texture lightBulb;
 	public InputMultiplexer inputMultiplexer;
-
 
 	@Override
 	public void create () {

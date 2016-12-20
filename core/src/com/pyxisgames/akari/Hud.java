@@ -54,6 +54,17 @@ public class Hud implements Disposable {
         bestLabel.setPosition(Akari.GAME_WIDTH - bestLabel.getWidth() - 15, 685);
         stage.addActor(bestLabel);
 
+        // Akari.GAME_WIDTH / 2 -
+        Actor restartLabel = new Label("restart", style);
+        restartLabel.setPosition((Akari.GAME_WIDTH - restartLabel.getWidth()) /2, 150);
+        restartLabel.addListener(new ClickListener() {
+            @Override
+            public void clicked (InputEvent event, float x, float y) {
+                //akari.prevScreen();
+            }
+        });
+        stage.addActor(restartLabel);
+
     }
 
     @Override
